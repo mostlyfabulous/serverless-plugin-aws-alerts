@@ -25,12 +25,15 @@ class Naming {
 
   getAlarmName(options) {
     const interpolatedTemplate = options.template
+      .replace('$[stackName]', options.stackName)
       .replace('$[functionName]', options.functionName)
       .replace('$[functionId]', options.functionLogicalId)
       .replace('$[metricName]', options.metricName)
       .replace('$[metricId]', options.metricId);
 
-    return `${options.stackName}-${interpolatedTemplate}`;
+    const prefix = (options.template.includes('$[stackName]') || options.stackNamePrefix === false) ? '' : `${options.stackName}-`;
+
+    return `${prefix}${interpolatedTemplate}`;
   }
 }
 

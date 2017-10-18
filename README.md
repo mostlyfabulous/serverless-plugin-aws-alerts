@@ -26,6 +26,7 @@ custom:
     dashboards: true # Experimental
 
     nameTemplate: $[functionName]-$[metricName]-Alarm # Optionally - naming template for alarms, can be overwritten in definitions
+    stackNamePrefix: false # Optionally - whether to prefix alarm names with the stack name, default is `true`
 
     topics:
       ok: ${self:service}-${opt:stage}-alerts-ok
@@ -123,12 +124,13 @@ custom:
 
 ## Custom Naming
 You can define custom naming template for the alarms. `nameTemplate` property under `alerts` configures naming template for all the alarms, while placing `nameTemplate` under alarm definition configures (overwrites) it for that specific alarm only. Naming template provides interpolation capabilities, where supported placeholders are:
+  - `$[stackName]` - stack name (e.g. `fooservice-dev`)
   - `$[functionName]` - function name (e.g. `helloWorld`)
   - `$[functionId]` - function logical id (e.g. `HelloWorldLambdaFunction`)
   - `$[metricName]` - metric name (e.g. `Duration`)
   - `$[metricId]` - metric id (e.g. `BunyanErrorsHelloWorldLambdaFunction` for the log based alarms, `$[metricName]` otherwise)
 
-> Note: All the alarm names are prefixed with stack name (e.g. `fooservice-dev`).
+Alarm names are prefixed with stack name (e.g. `fooservice-dev`) unless `nameTemplate` contains `$[stackName]`, or the `stackNamePrefix` option is `false`.
 
 ## Default Definitions
 The plugin provides some default definitions that you can simply drop into your application. For example:
