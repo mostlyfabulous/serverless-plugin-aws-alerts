@@ -40,16 +40,31 @@ describe('#naming', function () {
     let naming = null;
     beforeEach(() => naming = new Naming());
 
-    it('should interpolate alarm name', () => {
-      const template = '$[functionName]-$[functionId]-$[metricName]-$[metricId]';
+    [true, false, undefined].forEach(stackNamePrefix => {
+      const prefixDescription = stackNamePrefix === false ? '' : 'and prefix with stack name';
+      it(`should interpolate alarm name ${prefixDescription}`, () => {
+        const template = '$[functionName]-$[functionId]-$[metricName]-$[metricId]';
+        const functionName = 'function';
+        const functionLogicalId = 'functionId';
+        const metricName = 'metric';
+        const metricId = 'metricId';
+        const stackName = 'fooservice-dev';
+        const expectedPrefix = stackNamePrefix === false ? '' : `${stackName}-`;
+
+        const expected = `${expectedPrefix}${functionName}-${functionLogicalId}-${metricName}-${metricId}`;
+        const actual = naming.getAlarmName({ stackNamePrefix, template, functionName, functionLogicalId, metricName, metricId, stackName });
+
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    it('should not prefix when $[stackName] is in the template', () => {
+      const template = '$[functionName]-$[stackName]';
       const functionName = 'function';
-      const functionLogicalId = 'functionId';
-      const metricName = 'metric';
-      const metricId = 'metricId';
       const stackName = 'fooservice-dev';
 
-      const expected = `${stackName}-${functionName}-${functionLogicalId}-${metricName}-${metricId}`;
-      const actual = naming.getAlarmName({ template, functionName, functionLogicalId, metricName, metricId, stackName });
+      const expected = `${functionName}-${stackName}`;
+      const actual = naming.getAlarmName({ template, functionName, stackName });
 
       expect(actual).toEqual(expected);
     });
