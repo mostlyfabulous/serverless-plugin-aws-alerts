@@ -363,6 +363,26 @@ describe('#index', function () {
       expect(plugin.serverless.service.provider.compiledCloudFormationTemplate.Resources).toEqual({});
     });
 
+    it('should not create SNS topic when intrinsic function is passed', () => {
+      const topic = {
+        'Fn::ImportValue': 'topic-reference'
+      };
+      const plugin = pluginFactory({
+        topics: {
+          ok: topic
+        }
+      });
+
+      const config = plugin.getConfig();
+      const topics = plugin.compileAlertTopics(config);
+
+      expect(topics).toEqual({
+        ok: topic
+      });
+
+      expect(plugin.serverless.service.provider.compiledCloudFormationTemplate.Resources).toEqual({});
+    });
+
     it('should create SNS topic when name is passed', () => {
       const topicName = 'ok-topic';
       const plugin = pluginFactory({

@@ -169,12 +169,13 @@ class AlertsPlugin {
       Object.keys(config.topics).forEach((key) => {
         const topicConfig = config.topics[key];
         const isTopicConfigAnObject = _.isObject(topicConfig);
+        const isTopicConfigAnIntrinsicFunction = isTopicConfigAnObject && Object.keys(topicConfig).some(key => key.indexOf('Fn::') === 0);
 
-        const topic = isTopicConfigAnObject ? topicConfig.topic : topicConfig;
-        const notifications = isTopicConfigAnObject ? topicConfig.notifications : [];
+        const topic = isTopicConfigAnObject && !isTopicConfigAnIntrinsicFunction ? topicConfig.topic : topicConfig;
+        const notifications = isTopicConfigAnObject && !isTopicConfigAnIntrinsicFunction ? topicConfig.notifications : [];
 
         if (topic) {
-          if (topic.indexOf('arn:') === 0) {
+          if (isTopicConfigAnIntrinsicFunction || topic.indexOf('arn:') === 0) {
             alertTopics[key] = topic;
           } else {
             const cfRef = `AwsAlerts${_.upperFirst(key)}`;
